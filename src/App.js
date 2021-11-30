@@ -1,6 +1,7 @@
 import './App.scss';
-import ColorBox from './components/ColorBox';
-import React, { useState } from 'react';
+// import ColorBox from './components/ColorBox';
+import React, { useEffect, useState } from 'react';
+import PostList from './components/PostList';
 import TodoList from './components/TodoList';
 import TodoForm from './components/TodoForm';
 
@@ -10,6 +11,31 @@ function App() {
     { id: 2, title: 'We love EF'},
     { id: 3, title: 'They love EF'}
   ])
+
+  const [postList, setPostList] = useState([]);
+
+  useEffect(() => {
+    async function fetchPostList() {
+      try { 
+        const requestUrl = 'https://js-post-api.herokuapp.com/api/posts?_limit=10&+page=1';
+        const response = await fetch(requestUrl);
+        const responseJSON = await response.json();
+        console.log(responseJSON);
+
+        const {data} = responseJSON;
+        setPostList(data);
+      } catch (error) {
+        console.log('Fail to fetch post list: ', error.message);
+      }
+    }
+
+    console.log('post list effect');
+    fetchPostList();
+  }, [])
+
+  useEffect(() => {
+    console.log('todo list effect');
+  });
 
   function handleTodoClick(todo) {
     const index = todoList.findIndex(x => x.id === todo.id);
@@ -40,6 +66,8 @@ function App() {
 
       <TodoForm onSubmit={handleTodoFormSubmit}/>
       <TodoList todos={todoList} onTodoClick={handleTodoClick}/>
+
+      <PostList posts={postList}/>
     </div>
   );
 }
